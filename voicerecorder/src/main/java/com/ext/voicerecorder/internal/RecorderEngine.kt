@@ -23,7 +23,15 @@ internal class RecorderEngine {
         onError: (String) -> Unit
     ) {
         try {
-            val file = File(config.filePath, config.fileName)
+            val directory = File(config.filePath)
+            if (!directory.exists()) directory.mkdirs()
+
+            if (!directory.canWrite()) {
+                onError("Provided path is not writable")
+                return
+            }
+
+            val file = File(directory, config.fileName)
             outputFilePath = file.absolutePath
 
             recorder = MediaRecorder().apply {
@@ -43,6 +51,7 @@ internal class RecorderEngine {
             onError(e.message ?: "Recorder start failed")
         }
     }
+
 
 
     private fun startTimer(onDuration: (Long) -> Unit) {
